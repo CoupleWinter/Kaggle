@@ -14,17 +14,17 @@ Y = tf.placeholder(dtype=tf.float32, shape=[None, 2], name='y')
 w = tf.Variable(initial_value=tf.random_normal([6, 2]), name='weight')
 b = tf.Variable(initial_value=tf.zeros([2]), name='bias')
 
-y_ = tf.nn.softmax(tf.matmul(X, w) + b)
+y_pred = tf.nn.softmax(tf.matmul(X, w) + b)
 
-cross = tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=Y)
-cross_entropy = tf.reduce_mean(cross)
+cross_entropy = -tf.reduce_sum(Y * tf.log(y_pred + 1e-10), reduction_indices=1)
+cost = tf.reduce_mean(cross_entropy)
 
 train_op = tf.train.GradientDescentOptimizer(0.001).minimize(cross_entropy)
 
 tf.global_variables_initializer().run()
 
 for x in tqdm(10):
-    feed = {x: '', y_: ''}
+    feed = {x: '', y_pred: ''}
     _, loss = session.run([train_op, cross_entropy], feed=feed)
 
 if __name__ == '__main__':
