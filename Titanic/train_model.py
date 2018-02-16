@@ -5,7 +5,7 @@
 
 import tensorflow as tf
 import pandas as pd
-from tqdm import tqdm
+import numpy as np
 from sklearn.model_selection import train_test_split
 
 data = pd.read_csv('data/train.csv')
@@ -18,7 +18,7 @@ dataset_Y = data[['Deceased', 'Survived']].as_matrix()
 
 # split training data and validation set data
 
-X_train, X_val, y_train, y_val = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
+X_train, x_val, y_train, y_val = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
 
 session = tf.InteractiveSession()
 
@@ -44,3 +44,11 @@ for i in range(10):
         _, loss = session.run([train_op, cost], feed_dict=feed_dict)
         total_loss += loss
     print('loss=%.9f' % total_loss)
+
+# check accuracy
+pred = session.run(y_pred, feed_dict={x: x_val})
+correct = np.equal(np.argmax(pred, 1), np.argmax(y_val, 1))
+accuracy = np.mean(correct.astype(np.float32))
+print('Accuracy on validation set: %.9f' % accuracy)
+
+session.close()
