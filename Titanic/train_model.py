@@ -22,29 +22,25 @@ X_train, X_val, y_train, y_val = train_test_split(dataset_X, dataset_Y, test_siz
 
 session = tf.InteractiveSession()
 
-X = tf.placeholder(dtype=tf.float32, shape=[None, 6], name='feature')
-Y = tf.placeholder(dtype=tf.float32, shape=[None, 2], name='y')
+x = tf.placeholder(dtype=tf.float32, shape=[None, 6], name='feature')
+y = tf.placeholder(dtype=tf.float32, shape=[None, 2], name='y')
 
 w = tf.Variable(initial_value=tf.random_normal([6, 2]), name='weight')
 b = tf.Variable(initial_value=tf.zeros([2]), name='bias')
 
-y_pred = tf.nn.softmax(tf.matmul(X, w) + b)
+y_pred = tf.nn.softmax(tf.matmul(x, w) + b)
 
-cross_entropy = -tf.reduce_sum(Y * tf.log(y_pred + 1e-10), reduction_indices=1)
+cross_entropy = -tf.reduce_sum(y * tf.log(y_pred + 1e-10), reduction_indices=1)
 cost = tf.reduce_mean(cross_entropy)
 
 train_op = tf.train.GradientDescentOptimizer(0.001).minimize(cost)
-
-# calculate accuracy
-correct_pred = tf.equal(tf.argmax(Y, 1), tf.argmax(y_pred, 1))
-acc_op = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 tf.global_variables_initializer().run()
 
 for i in range(10):
     total_loss = 0.
-    for j in range(10):
-        feed_dict = {X: [X_train[i]], Y: [y_train[i]]}
+    for j in range(len(X_train)):
+        feed_dict = {x: [X_train[j]], y: [y_train[j]]}
         _, loss = session.run([train_op, cost], feed_dict=feed_dict)
         total_loss += loss
-    print('')
+    print('loss=%.9f' % total_loss)
