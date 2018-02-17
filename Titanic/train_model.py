@@ -45,8 +45,9 @@ for i in range(10):
         total_loss += loss
     print('loss=%.9f' % total_loss)
 
-# check accuracy
+# Check accuracy
 pred = session.run(y_pred, feed_dict={x: x_val})
+# Equal every row maximum values
 correct = np.equal(np.argmax(pred, 1), np.argmax(y_val, 1))
 accuracy = np.mean(correct.astype(np.float32))
 print('Accuracy on validation set: %.9f' % accuracy)
