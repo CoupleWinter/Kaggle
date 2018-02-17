@@ -6,6 +6,7 @@
 import tensorflow as tf
 import pandas as pd
 import numpy as np
+import os
 from sklearn.model_selection import train_test_split
 
 data = pd.read_csv('data/train.csv')
@@ -51,5 +52,11 @@ pred = session.run(y_pred, feed_dict={x: x_val})
 correct = np.equal(np.argmax(pred, 1), np.argmax(y_val, 1))
 accuracy = np.mean(correct.astype(np.float32))
 print('Accuracy on validation set: %.9f' % accuracy)
+
+# Save model
+saver = tf.train.Saver()
+path=os.getcwd()
+save_path = saver.save(session, path+'/model/titanic.ckpt')
+print(save_path)
 
 session.close()

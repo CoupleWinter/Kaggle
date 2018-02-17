@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/littlefairy/Documents/GitHub/Kaggle/Titanic/model/titanic.ckpt"
+all_model_checkpoint_paths: "/Users/littlefairy/Documents/GitHub/Kaggle/Titanic/model/titanic.ckpt"
