@@ -60,3 +60,11 @@ save_path = saver.save(session, path+'/model/titanic.ckpt')
 print(save_path)
 
 session.close()
+
+with tf.Session() as ses:
+    saver.restore(ses,save_path)
+    pred = ses.run(y_pred, feed_dict={x: x_val})
+    # Equal every row maximum values
+    correct = np.equal(np.argmax(pred, 1), np.argmax(y_val, 1))
+    accuracy = np.mean(correct.astype(np.float32))
+    print('Accuracy on validation set: %.9f' % accuracy)
