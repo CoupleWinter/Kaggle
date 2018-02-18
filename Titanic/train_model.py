@@ -36,9 +36,10 @@ cost = tf.reduce_mean(cross_entropy)
 
 train_op = tf.train.GradientDescentOptimizer(0.001).minimize(cost)
 
-tf.global_variables_initializer().run()
+session.run(tf.global_variables_initializer())
+# tf.global_variables_initializer().run()
 
-for i in range(10):
+for i in range(1000):
     total_loss = 0.
     for j in range(len(X_train)):
         feed_dict = {x: [X_train[j]], y: [y_train[j]]}
@@ -55,16 +56,31 @@ print('Accuracy on validation set: %.9f' % accuracy)
 
 # Save model
 saver = tf.train.Saver()
-path=os.getcwd()
-save_path = saver.save(session, path+'/model/titanic.ckpt')
+path = os.getcwd()
+save_path = saver.save(session, path + '/model/titanic.ckpt')
 print(save_path)
 
 session.close()
 
 with tf.Session() as ses:
-    saver.restore(ses,save_path)
+    saver.restore(ses, save_path)
     pred = ses.run(y_pred, feed_dict={x: x_val})
     # Equal every row maximum values
     correct = np.equal(np.argmax(pred, 1), np.argmax(y_val, 1))
     accuracy = np.mean(correct.astype(np.float32))
     print('Accuracy on validation set: %.9f' % accuracy)
+
+    testdata = pd.read_csv('data/test.csv')
+    print(testdata.info())
+    testdata = testdata.fillna(0)
+    testdata['Sex'] = testdata['Sex'].apply(lambda s: 1 if s == 'male' else 0)
+    X_test = testdata[['Sex', 'Age', 'Pclass', 'SibSp', 'Parch', 'Fare']].as_matrix()
+
+    predictions = np.argmax(ses.run(y_pred, feed_dict={x: X_test}), 1)
+    print(predictions)
+    submission = pd.DataFrame({
+        'PassengerId': testdata['PassengerId'],
+        'Survived': predictions
+    })
+
+    submission.to_csv('data/titanic.csv', index=False)
