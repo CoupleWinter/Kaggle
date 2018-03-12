@@ -7,6 +7,7 @@ import tensorflow as tf
 import pandas as pd
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
+import numpy as np
 
 data = pd.read_csv('data/train.csv')
 
@@ -43,8 +44,30 @@ tf.global_variables_initializer().run()
 
 for i in range(10):
     total_loss = 0.
-    for j in range(10):
+    for j in range(len(X_train)):
         feed_dict = {X: [X_train[i]], Y: [y_train[i]]}
         _, loss = session.run([train_op, cost], feed_dict=feed_dict)
         total_loss += loss
-    print('')
+    print('Epoch: %04d, total loss=%.9f' % (i + 1, total_loss))
+
+accuracy = session.run(acc_op, feed_dict={X: X_val, Y: y_val})
+print("Accuracy on validation set: %.9f" % accuracy)
+
+# Accurary calculated by NumPy
+pred = session.run(y_pred, feed_dict={X: X_val})
+correct = np.equal(np.argmax(pred, 1), np.argmax(y_val, 1))
+numpy_accuracy = np.mean(correct.astype(np.float32))
+print("Accuracy on validation set (numpy): %.9f" % numpy_accuracy)
+
+# predict on test data
+testdata = pd.read_csv('data/test.csv')
+testdata = testdata.fillna(0)
+testdata['Sex'] = testdata['Sex'].apply(lambda s: 1 if s == 'male' else 0)
+X_test = testdata[['Sex', 'Age', 'Pclass', 'SibSp', 'Parch', 'Fare']]
+predictions = np.argmax(session.run(y_pred, feed_dict={X: X_test}), 1)
+print(predictions)
+submission = pd.DataFrame({
+    "PassengerId": testdata["PassengerId"],
+    "Survived": predictions
+})
+submission.to_csv("data/gender_submission.csv", index=False)
