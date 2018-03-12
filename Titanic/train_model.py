@@ -5,7 +5,8 @@
 
 import tensorflow as tf
 import pandas as pd
-from tqdm import tqdm
+import numpy as np
+import os
 from sklearn.model_selection import train_test_split
 import numpy as np
 
@@ -19,30 +20,27 @@ dataset_Y = data[['Deceased', 'Survived']].as_matrix()
 
 # split training data and validation set data
 
-X_train, X_val, y_train, y_val = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
+X_train, x_val, y_train, y_val = train_test_split(dataset_X, dataset_Y, test_size=0.2, random_state=42)
 
 session = tf.InteractiveSession()
 
-X = tf.placeholder(dtype=tf.float32, shape=[None, 6], name='feature')
-Y = tf.placeholder(dtype=tf.float32, shape=[None, 2], name='y')
+x = tf.placeholder(dtype=tf.float32, shape=[None, 6], name='feature')
+y = tf.placeholder(dtype=tf.float32, shape=[None, 2], name='y')
 
 w = tf.Variable(initial_value=tf.random_normal([6, 2]), name='weight')
 b = tf.Variable(initial_value=tf.zeros([2]), name='bias')
 
-y_pred = tf.nn.softmax(tf.matmul(X, w) + b)
+y_pred = tf.nn.softmax(tf.matmul(x, w) + b)
 
-cross_entropy = -tf.reduce_sum(Y * tf.log(y_pred + 1e-10), reduction_indices=1)
+cross_entropy = -tf.reduce_sum(y * tf.log(y_pred + 1e-10), reduction_indices=1)
 cost = tf.reduce_mean(cross_entropy)
 
 train_op = tf.train.GradientDescentOptimizer(0.001).minimize(cost)
 
-# calculate accuracy
-correct_pred = tf.equal(tf.argmax(Y, 1), tf.argmax(y_pred, 1))
-acc_op = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+session.run(tf.global_variables_initializer())
+# tf.global_variables_initializer().run()
 
-tf.global_variables_initializer().run()
-
-for i in range(10):
+for i in range(1000):
     total_loss = 0.
     for j in range(len(X_train)):
         feed_dict = {X: [X_train[i]], Y: [y_train[i]]}
