@@ -39,10 +39,10 @@ train_op = tf.train.GradientDescentOptimizer(0.001).minimize(cost)
 session.run(tf.global_variables_initializer())
 # tf.global_variables_initializer().run()
 
-for i in range(1000):
+for i in range(100):
     total_loss = 0.
     for j in range(10):
-        feed_dict = {X: [X_train[i]], Y: [y_train[i]]}
+        feed_dict = {x: [X_train[i]], y: [y_train[i]]}
         _, loss = session.run([train_op, cost], feed_dict=feed_dict)
         total_loss += loss
     print('')
