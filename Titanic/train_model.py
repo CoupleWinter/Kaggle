@@ -3,10 +3,8 @@
 # Date : 2018-1-23 21:44 sy
 
 
-import tensorflow as tf
 import pandas as pd
-import numpy as np
-import os
+import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
 data = pd.read_csv('data/train.csv')

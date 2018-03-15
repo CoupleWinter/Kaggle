@@ -2,10 +2,11 @@
 
 # import load_iris from  dataset module
 from sklearn.datasets import load_iris
+# Classification accuracy
+from sklearn import metrics
 
 # save "bunch" object containing iris dataset and its attributes
 iris = load_iris()
-
 ###############
 # print(type(iris))
 #
@@ -23,13 +24,8 @@ iris = load_iris()
 #
 # print(iris.data.shape)
 ###############
-
 X = iris.data
-print(len(X))
-print(X)
 y = iris.target
-print(len(y))
-print(y)
 # region Agenda 2018-3-14
 #  1.K-nearest neighbors classification model?
 #  2.Four steps for model training and prediction in scikit-learn?
@@ -50,12 +46,11 @@ knn.fit(X, y)
 knn_logis.fit(X, y)
 
 # Step 4 : Predict observations are called "out-of-sample" data
-print(knn.predict([[3, 5, 4, 2]]))
-print(knn_logis.predict([[3, 5, 4, 2]]))
+y_ne = knn.predict(X)
+print(metrics.accuracy_score(y, y_ne))
 
-X_new = [[3, 5, 4, 2], [5, 4, 3, 2]]
-print(knn.predict(X_new))
-print(knn_logis.predict(X_new))
+y_pred = knn_logis.predict(X)
 
+print(metrics.accuracy_score(y, y_pred))
 #  3.How can i apply this pattern to other machine learning models?
 # endregion

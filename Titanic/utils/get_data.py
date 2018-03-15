@@ -9,10 +9,9 @@ import tensorflow as tf
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-path = os.path.dirname(os.path.abspath(__file__)).split('Titanic')[0] + 'Titanic/data/'
-
 
 def get_data():
+    path = os.path.dirname(os.path.abspath(__file__)).split('Titanic')[0] + 'Titanic/data/'
     train = path + 'train.csv'
     if not tf.gfile.Exists(train):
         print('No data')
@@ -33,7 +32,4 @@ def get_data():
 
     # 切分数据集,验证数据占20%
     x_train, x_test, y_train, y_test = train_test_split(dataframe_x, dataframe_Y, test_size=0.2, random_state=42)
-
-
-if __name__ == '__main__':
-    get_data()
+    return x_train, x_test, y_train, y_test
