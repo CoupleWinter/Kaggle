@@ -26,6 +26,10 @@ iris = load_iris()
 ###############
 X = iris.data
 y = iris.target
+print(X.shape)
+print(y.shape)
+# print(len(X))
+# print(len(y))
 # region Agenda 2018-3-14
 #  1.K-nearest neighbors classification model?
 #  2.Four steps for model training and prediction in scikit-learn?
