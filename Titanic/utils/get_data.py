@@ -8,6 +8,8 @@ import os
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
+from sklearn.ensemble import RandomForestRegressor
 
 
 class GetData(object):
@@ -63,10 +65,21 @@ class GetData(object):
 
     def feature_engineering(self):
         print(self.data.describe())
-        self.data = self.data.fillna(0)
+        # self.data = self.data.fillna(0)
+
         self.data['Sex'] = self.data['Sex'].apply(lambda s: 1 if s == 'male' else 0)
-        data_x = self.data[['Sex', 'Age', 'Pclass', 'SibSp', 'Parch', 'Fare', 'PassengerId']].as_matrix()
-        data_y = self.data[['Survived']].as_matrix()
+
+        # region 均值归一
+        scaler = preprocessing.StandardScaler()
+        # endregion
+        data_x = self.data[['Sex', 'Age', 'Pclass', 'SibSp', 'Parch', 'Fare', 'PassengerId']]
+        data_y = self.data[['Survived']]
+
+        age_scale_param = scaler.fit(data_x['Age'])
+        self.data['Age'] = scaler.fit_transform(data_x['Age'], age_scale_param)
+        fare_scale_param = scaler.fit(self.data['Fare'])
+        self.data['Fare'] = scaler.fit_transform(self.data['Fare'], fare_scale_param)
+        print(self.data)
         x_train, x_test, y_train, y_test = train_test_split(data_x, data_y, test_size=0.1, random_state=42)
         print(len(x_train), len(y_train), len(x_test), len(y_test))
         return x_train, x_test, y_train, y_test
@@ -77,6 +90,30 @@ class GetData(object):
         data['Sex'] = self.data['Sex'].apply(lambda s: 1 if s == 'male' else 0)
         data_x = data[['Sex', 'Age', 'Pclass', 'SibSp', 'Parch', 'Fare', 'PassengerId']].as_matrix()
         return data, data_x
+
+    def set_missing_ages(self):
+        """
+        目的是对缺少的特性进行补充
+        方式：对已有特性按照年龄分组，使用已有特性进行训练模型，对缺少字段进行预测
+        算法： 随机森林
+        :return:
+        """
+
+        self.data['Sex'] = self.data['Sex'].apply(lambda s: 1 if s == 'male' else 0)
+        age_data = self.data[['Age', 'Sex', 'Pclass', 'SibSp', 'Parch', 'Fare', 'PassengerId']]
+        know_age_data = age_data[age_data.Age.notnull()].as_matrix()
+        un_know_age_data = age_data[age_data.Age.isnull()].as_matrix()
+
+        y = know_age_data[:, 0]
+        X = know_age_data[:, 1:]
+
+        rfr = RandomForestRegressor(random_state=0, n_estimators=2000, n_jobs=-1)
+        rfr.fit(X, y)
+
+        predicte_ages = rfr.predict(un_know_age_data[:, 1::])
+        self.data.loc[(self.data.Age.isnull()), 'Age'] = predicte_ages
+
+        return self.data, rfr,
 
 
 def get_data():
@@ -106,4 +143,4 @@ def get_data():
 
 
 if __name__ == '__main__':
-    GetData().feature_engineering()
+    GetData().set_missing_ages()
