@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import os
 
-x_train, x_test, y_train, y_test = GetData().feature_engineering()
+x_train, x_test, y_train, y_test = GetData.feature_engineering(GetData().train)
 
 # print(x_train.shape)
 # print(y_train.shape)
@@ -21,7 +21,7 @@ y_pred = logistic_model.predict(x_test)
 #
 print(accuracy_score(y_test, y_pred))
 
-data,x_submission = GetData().feature_engineering_test()
+data,x_submission = GetData.feature_engineering_test()
 
 y_submission = logistic_model.predict(x_submission)
 
