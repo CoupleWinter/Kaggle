@@ -71,22 +71,27 @@ class GetData(object):
         """
         data = pd.read_csv(path)
         print(data.describe())
-        # self.data = self.data.fillna(0)
 
-        data['Sex'] = data['Sex'].apply(lambda s: 1 if s == 'male' else 0)
+        # self.data = self.data.fillna(0)
+        data, rfr = GetData.set_missing_ages(path)
+        data = GetData.set_cabin_type(data)
+        data = GetData.get_dummies(data)
+        # data['Sex'] = data['Sex'].apply(lambda s: 1 if s == 'male' else 0)
 
         # region 均值归一
         scaler = preprocessing.StandardScaler()
-        # endregion
-        data_x = data[['Sex', 'Age', 'Pclass', 'SibSp', 'Parch', 'Fare', 'PassengerId']]
-        data_y = data[['Survived']]
-
-        age_scale_param = scaler.fit(data_x[['Age']])
-        data[['Age']] = scaler.fit_transform(data_x[['Age']], age_scale_param)
+        age_scale_param = scaler.fit(data[['Age']])
+        data[['Age']] = scaler.fit_transform(data[['Age']], age_scale_param)
         fare_scale_param = scaler.fit(data[['Fare']])
         data[['Fare']] = scaler.fit_transform(data[['Fare']], fare_scale_param)
+        # endregion
+
+        train_x = data.filter(regex='Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*')
+        train_data_np = train_x.as_matrix()
+        Y = train_data_np[:, 0]
+        X = train_data_np[:, 1:]
         print(data)
-        x_train, x_test, y_train, y_test = train_test_split(data_x, data_y, test_size=0.1, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
         print(len(x_train), len(y_train), len(x_test), len(y_test))
         return x_train, x_test, y_train, y_test
 
@@ -173,7 +178,8 @@ def get_data():
 
 if __name__ == '__main__':
     train_path = GetData().train
-    data, rfr = GetData.set_missing_ages(train_path)
-    data = GetData.set_cabin_type(data)
-    df = GetData.get_dummies(data)
-    print(df)
+    x_train, x_test, y_train, y_test = GetData.feature_engineering(train_path)
+    # data, rfr = GetData.set_missing_ages(train_path)
+    # data = GetData.set_cabin_type(data)
+    # df = GetData.get_dummies(data)
+    # print(df)
