@@ -65,13 +65,10 @@ class GetData(object):
     @staticmethod
     def feature_engineering(path):
         """
-
+        特征工程
         :param path:
         :return:
         """
-        data = pd.read_csv(path)
-        print(data.describe())
-
         # self.data = self.data.fillna(0)
         data, rfr = GetData.set_missing_ages(path)
         data = GetData.set_cabin_type(data)
@@ -95,12 +92,27 @@ class GetData(object):
         print(len(x_train), len(y_train), len(x_test), len(y_test))
         return x_train, x_test, y_train, y_test
 
-    def feature_engineering_test(self):
-        data = pd.read_csv(self.test)
-        data = data.fillna(0)
-        data['Sex'] = self.data['Sex'].apply(lambda s: 1 if s == 'male' else 0)
-        data_x = data[['Sex', 'Age', 'Pclass', 'SibSp', 'Parch', 'Fare', 'PassengerId']].as_matrix()
-        return data, data_x
+    @staticmethod
+    def feature_engineering_test(path):
+        """
+
+        :param path:
+        :return:
+        """
+        data, rfr = GetData.set_missing_ages_test(path)
+        data = GetData.set_cabin_type(data)
+        data = GetData.get_dummies(data)
+        # region 均值归一
+        scaler = preprocessing.StandardScaler()
+        age_scale_param = scaler.fit(data[['Age']])
+        data[['Age']] = scaler.fit_transform(data[['Age']], age_scale_param)
+        fare_scale_param = scaler.fit(data[['Fare']])
+        data[['Fare']] = scaler.fit_transform(data[['Fare']], fare_scale_param)
+        # endregion
+
+        train_x = data.filter(regex='Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*')
+        train_data_np = train_x.as_matrix()
+        return data, train_data_np
 
     @staticmethod
     def set_missing_ages(path):
@@ -111,6 +123,8 @@ class GetData(object):
         :return:
         """
         data = pd.read_csv(path)
+        print(data.describe())
+        print(data)
         data['Sex'] = data['Sex'].apply(lambda s: 1 if s == 'male' else 0)
         age_data = data[['Age', 'Sex', 'Pclass', 'SibSp', 'Parch', 'Fare', 'PassengerId']]
         know_age_data = age_data[age_data.Age.notnull()].as_matrix()
@@ -122,6 +136,28 @@ class GetData(object):
         predicte_ages = rfr.predict(un_know_age_data[:, 1::])
         data.loc[(data.Age.isnull()), 'Age'] = predicte_ages
         return data, rfr,
+
+    @staticmethod
+    def set_missing_ages_test(path):
+        """
+
+        :param path:
+        :return:
+        """
+        data = pd.read_csv(path)
+        print(data.describe())
+        print(data)
+        data.loc[(data.Fare.isnull()), 'Fare'] = 0
+        tmp_data = data[['Age', 'Fare', 'Parch', 'SibSp', 'Pclass']]
+        null_age = tmp_data[data.Age.isnull()].as_matrix()
+        know_age = tmp_data[data.Age.notnull()].as_matrix()
+        y = know_age[:, 0]
+        X = know_age[:, 1:]
+        predicted_ages_model = RandomForestRegressor(random_state=0, n_estimators=2000, n_jobs=-1)
+        predicted_ages_model.fit(X, y)
+        predicted_ages = predicted_ages_model.predict(null_age[:, 1::])
+        data.loc[(data.Age.isnull()), 'Age'] = predicted_ages
+        return data, predicted_ages_model
 
     @staticmethod
     def set_cabin_type(data):
