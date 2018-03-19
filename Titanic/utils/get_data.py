@@ -129,6 +129,21 @@ class GetData(object):
         data.loc[(data.Cabin.isnull()), 'Cabin'] = 'No'
         return data
 
+    @staticmethod
+    def get_dummies(data):
+        """
+        类目型的特征因子化
+        :param data:
+        :return:
+        """
+        dummies_Cabin = pd.get_dummies(data['Cabin'], prefix='Cabin')
+        dummies_Embarked = pd.get_dummies(data['Embarked'], prefix='Embarked')
+        dummies_Sex = pd.get_dummies(data['Sex'], prefix='Sex')
+        dummies_Pclass = pd.get_dummies(data['Pclass'], prefix='Pclass')
+        df = pd.concat([data, dummies_Cabin, dummies_Embarked, dummies_Sex, dummies_Pclass], axis=1)
+        df.drop(['Pclass', 'Name', 'Sex', 'Ticket', 'Cabin', 'Embarked'], axis=1, inplace=True)
+        return df
+
 
 def get_data():
     path = os.path.dirname(os.path.abspath(__file__)).split('Titanic')[0] + 'Titanic/data/'
@@ -160,3 +175,5 @@ if __name__ == '__main__':
     train_path = GetData().train
     data, rfr = GetData.set_missing_ages(train_path)
     data = GetData.set_cabin_type(data)
+    df = GetData.get_dummies(data)
+    print(df)
