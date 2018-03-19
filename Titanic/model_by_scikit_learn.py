@@ -21,7 +21,7 @@ y_pred = logistic_model.predict(x_test)
 #
 print(accuracy_score(y_test, y_pred))
 
-data,x_submission = GetData.feature_engineering_test()
+data, x_submission = GetData.feature_engineering_test()
 
 y_submission = logistic_model.predict(x_submission)
 
