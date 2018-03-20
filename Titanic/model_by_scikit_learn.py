@@ -9,15 +9,16 @@ import pandas as pd
 import numpy as np
 import os
 
-x_train, x_test, y_train, y_test = GetData.feature_engineering(GetData().train)
+x_train, x_test, y_train, y_test, train_x = GetData.feature_engineering(GetData().train)
 
-
-logistic_model = LogisticRegression()
+logistic_model = LogisticRegression(C=1.0, penalty='l1', tol=1e-6)
 logistic_model.fit(x_train, y_train.ravel())
 y_pred = logistic_model.predict(x_test)
 
 #
 print(accuracy_score(y_test, y_pred))
+
+GetData.trans_model_to_feature(train_x, logistic_model)
 
 data, x_submission = GetData.feature_engineering_test(GetData().test)
 
