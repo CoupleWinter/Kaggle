@@ -11,8 +11,6 @@ import os
 
 x_train, x_test, y_train, y_test = GetData.feature_engineering(GetData().train)
 
-# print(x_train.shape)
-# print(y_train.shape)
 
 logistic_model = LogisticRegression()
 logistic_model.fit(x_train, y_train.ravel())
