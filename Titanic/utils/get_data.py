@@ -10,6 +10,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from sklearn.ensemble import RandomForestRegressor
+from sklearn import cross_validation
+from sklearn.linear_model import LogisticRegression
 
 
 class GetData(object):
@@ -85,10 +87,10 @@ class GetData(object):
 
         train_x = data.filter(regex='Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*')
         train_data_np = train_x.as_matrix()
-        Y = train_data_np[:, 0]
-        X = train_data_np[:, 1:]
-        x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
-        return x_train, x_test, y_train, y_test, train_x
+        data_Y = train_data_np[:, 0]
+        data_X = train_data_np[:, 1:]
+        # x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
+        return data_X, data_Y, train_x, data
 
     @staticmethod
     def feature_engineering_test(path):
@@ -187,6 +189,24 @@ class GetData(object):
     def trans_model_to_feature(train_x, model):
         print(pd.DataFrame({'columns': list(train_x.columns)[1:],
                             'coef': list(model.coef_.T)}))
+
+    @staticmethod
+    def cross_validation(train_data, pred, data, model):
+        print(cross_validation.cross_val_score(model, train_data, pred, cv=5))
+
+        train_data, cv_data = cross_validation.train_test_split(data, test_size=0.3, random_state=0)
+        train_df=train_data.filter(regex='Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*')
+
+        # 生成模型
+        clf = LogisticRegression(C=1.0, penalty='l1', tol=1e-6)
+        clf.fit(train_df.as_matrix()[:, 1:], train_df.as_matrix()[:, 0])
+
+        # 对cross validation数据进行预测
+        origin_data_train = pd.read_csv(GetData.train)
+        predictions = clf.predict(cv_data.as_matrix()[:, 1:])
+        bad_cases = origin_data_train.loc[origin_data_train['PassengerId'].isin(
+                cv_data[predictions != cv_data.as_matrix()[:, 0]]['PassengerId'].values)]
+        print(bad_cases)
 
 
 def get_data():
