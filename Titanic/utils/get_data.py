@@ -87,10 +87,8 @@ class GetData(object):
         train_data_np = train_x.as_matrix()
         Y = train_data_np[:, 0]
         X = train_data_np[:, 1:]
-        print(data)
         x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
-        print(len(x_train), len(y_train), len(x_test), len(y_test))
-        return x_train, x_test, y_train, y_test
+        return x_train, x_test, y_train, y_test, train_x
 
     @staticmethod
     def feature_engineering_test(path):
@@ -185,6 +183,11 @@ class GetData(object):
         df.drop(['Pclass', 'Name', 'Sex', 'Ticket', 'Cabin', 'Embarked'], axis=1, inplace=True)
         return df
 
+    @staticmethod
+    def trans_model_to_feature(train_x, model):
+        print(pd.DataFrame({'columns': list(train_x.columns)[1:],
+                            'coef': list(model.coef_.T)}))
+
 
 def get_data():
     path = os.path.dirname(os.path.abspath(__file__)).split('Titanic')[0] + 'Titanic/data/'
@@ -214,8 +217,3 @@ def get_data():
 
 if __name__ == '__main__':
     train_path = GetData().train
-    x_train, x_test, y_train, y_test = GetData.feature_engineering(train_path)
-    # data, rfr = GetData.set_missing_ages(train_path)
-    # data = GetData.set_cabin_type(data)
-    # df = GetData.get_dummies(data)
-    # print(df)
