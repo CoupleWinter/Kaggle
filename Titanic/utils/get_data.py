@@ -123,8 +123,8 @@ class GetData(object):
         :return:
         """
         data = pd.read_csv(path)
-        print(data.describe())
-        print(data)
+        # print(data.describe())
+        # print(data)
         data['Sex'] = data['Sex'].apply(lambda s: 1 if s == 'male' else 0)
         age_data = data[['Age', 'Sex', 'Pclass', 'SibSp', 'Parch', 'Fare', 'PassengerId']]
         know_age_data = age_data[age_data.Age.notnull()].as_matrix()
@@ -145,8 +145,8 @@ class GetData(object):
         :return:
         """
         data = pd.read_csv(path)
-        print(data.describe())
-        print(data)
+        # print(data.describe())
+        # print(data)
         data.loc[(data.Fare.isnull()), 'Fare'] = 0
         tmp_data = data[['Age', 'Fare', 'Parch', 'SibSp', 'Pclass']]
         null_age = tmp_data[data.Age.isnull()].as_matrix()
@@ -195,7 +195,7 @@ class GetData(object):
         print(cross_validation.cross_val_score(model, train_data, pred, cv=5))
 
         train_data, cv_data = cross_validation.train_test_split(data, test_size=0.3, random_state=0)
-        train_df=train_data.filter(regex='Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*')
+        train_df = train_data.filter(regex='Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*')
 
         # 生成模型
         clf = LogisticRegression(C=1.0, penalty='l1', tol=1e-6)
@@ -203,7 +203,8 @@ class GetData(object):
 
         # 对cross validation数据进行预测
         origin_data_train = pd.read_csv(GetData.train)
-        predictions = clf.predict(cv_data.as_matrix()[:, 1:])
+        cv_df = cv_data.filter(regex='Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*')
+        predictions = clf.predict(cv_df.as_matrix()[:, 1:])
         bad_cases = origin_data_train.loc[origin_data_train['PassengerId'].isin(
                 cv_data[predictions != cv_data.as_matrix()[:, 0]]['PassengerId'].values)]
         print(bad_cases)
