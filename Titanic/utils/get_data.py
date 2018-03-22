@@ -10,7 +10,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
 from sklearn.ensemble import RandomForestRegressor
-from sklearn import cross_validation
+from sklearn import model_selection
 from sklearn.linear_model import LogisticRegression
 
 
@@ -192,9 +192,9 @@ class GetData(object):
 
     @staticmethod
     def cross_validation(train_data, pred, data, model):
-        print(cross_validation.cross_val_score(model, train_data, pred, cv=5))
+        print(model_selection.cross_val_score(model, train_data, pred, cv=5))
 
-        train_data, cv_data = cross_validation.train_test_split(data, test_size=0.3, random_state=0)
+        train_data, cv_data = model_selection.train_test_split(data, test_size=0.3, random_state=0)
         train_df = train_data.filter(regex='Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*')
 
         # 生成模型
@@ -235,6 +235,5 @@ def get_data():
     # x_train, x_test, y_train, y_test = train_test_split(dataframe_x, dataframe_Y, test_size=0.2, random_state=42)
     # return x_train, x_test, y_train, y_test
 
-
-if __name__ == '__main__':
-    train_path = GetData().train
+# if __name__ == '__main__':
+#     train_path = GetData().train
