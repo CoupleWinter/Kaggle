@@ -5,6 +5,7 @@
 from Titanic.utils import *
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from sklearn import model_selection
 import pandas as pd
 import numpy as np
 import os
@@ -16,7 +17,9 @@ logistic_model = LogisticRegression(C=1.0, penalty='l1', tol=1e-6)
 logistic_model.fit(x_train, y_train.ravel())
 
 # Croess validation
-GetData.cross_validation(x_train, y_train.ravel(), data, logistic_model)
+print(model_selection.cross_val_score(logistic_model, x_train, y_train, cv=5))
+
+bad_cases, train_df, cv_df = GetData.cross_validation(x_train, y_train.ravel(), data, logistic_model)
 
 # y_pred = logistic_model.predict(x_test)
 #
