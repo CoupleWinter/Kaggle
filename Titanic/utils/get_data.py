@@ -192,7 +192,7 @@ class GetData(object):
 
     @staticmethod
     def cross_validation(train_data, pred, data, model):
-        print(model_selection.cross_val_score(model, train_data, pred, cv=5))
+        # print(model_selection.cross_val_score(model, train_data, pred, cv=5))
 
         train_data, cv_data = model_selection.train_test_split(data, test_size=0.3, random_state=0)
         train_df = train_data.filter(regex='Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*')
@@ -207,7 +207,7 @@ class GetData(object):
         predictions = clf.predict(cv_df.as_matrix()[:, 1:])
         bad_cases = origin_data_train.loc[origin_data_train['PassengerId'].isin(
                 cv_data[predictions != cv_data.as_matrix()[:, 0]]['PassengerId'].values)]
-        print(bad_cases)
+        return bad_cases, train_df, cv_df
 
 
 def get_data():
